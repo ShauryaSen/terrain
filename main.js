@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { ImprovedNoise } from 'three/addons/math/ImprovedNoise.js';
+import { FirstPersonControls } from './FirstPersonControls'
 
 // scene
 const scene = new THREE.Scene();
@@ -7,13 +8,24 @@ const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.inner
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
-camera.position.set(0, 10, 80);
+let cameraPos = {x: 0, y: 15}
+camera.position.set(cameraPos.x, cameraPos.y, 0);
+
+// controls
+const controls = new FirstPersonControls(camera, renderer.domElement);
+controls.movementSpeed=0.5
+controls.lookSpeed= 1.2;
+controls.lookVertical = true;
+controls.activeLook = true;
+
+// swap controls with mine
+
 
 // plane
-const viewAngle = -Math.PI/3;
-const segments = 50;
-const planeWidth = 100;
-const planeLength = 100
+const viewAngle = -Math.PI/2;
+const segments = 500;
+const planeWidth = 500;
+const planeLength = 500;
 const geometry = new THREE.PlaneGeometry( planeWidth, planeLength, segments, segments);
 const material = new THREE.MeshBasicMaterial( {color: 0x41980a, wireframe: true} );
 const plane = new THREE.Mesh( geometry, material );
@@ -22,20 +34,25 @@ scene.add( plane );
 
 // perlin
 const perlin = new ImprovedNoise();
-const height = 20; 
+const height = 50; 
 for (let i = 0; i < geometry.attributes.position.count; i++) {
     
     let x = i % (segments + 1);
     let y = Math.floor(i / (segments + 1));
 
-    let noise = perlin.noise(x / 10, y / 10, 0); 
+    let noise = perlin.noise(x / 30, y / 30, 0); 
     geometry.attributes.position.setZ(i, noise * height);
 }
 geometry.computeVertexNormals(); 
 
-
+// key strokes
+addEventListener("keydown", logkey);
+function logkey(e) {
+    // if (e.keyCode===87) 
+}
 function animate() {
 	requestAnimationFrame( animate );
+    controls.update(1);
 	renderer.render( scene, camera );
 }
 animate();
