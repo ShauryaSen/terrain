@@ -18,13 +18,33 @@ controller.movementSpeed=0.3
 controller.autoForward = true;
 controller.rollSpeed = 0.008
 
+// lighting
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // soft white light
+scene.add(ambientLight);
+
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1); // sunlight
+directionalLight.position.set(50, 100, 50);
+scene.add(directionalLight);
+
+
+// load texture
+const terrainTexture = new THREE.TextureLoader().load('assets/TerrainTexture.jpg' ); 
+terrainTexture.wrapS = THREE.RepeatWrapping;
+terrainTexture.wrapT = THREE.RepeatWrapping;
+terrainTexture.repeat.set(10, 10); 
+
+
 // plane
 const viewAngle = -Math.PI/2;
 const segments = 500;
 const planeWidth = 500;
 const planeLength = 500;
 const geometry = new THREE.PlaneGeometry( planeWidth, planeLength, segments, segments);
-const material = new THREE.MeshBasicMaterial( {color: 0x41980a, wireframe: true} );
+
+const material = new THREE.MeshStandardMaterial({
+    map: terrainTexture,
+});
+
 const plane = new THREE.Mesh( geometry, material );
 plane.rotation.x = viewAngle;
 scene.add( plane );
