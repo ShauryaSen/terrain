@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { ImprovedNoise } from 'three/addons/math/ImprovedNoise.js';
-import { FirstPersonControls } from './FirstPersonControls'
+import { FlyControls } from 'three/addons/controls/FlyControls.js';
+
 
 // scene
 const scene = new THREE.Scene();
@@ -12,13 +13,11 @@ let cameraPos = {x: 0, y: 15}
 camera.position.set(cameraPos.x, cameraPos.y, 0);
 
 // controls
-const controls = new FirstPersonControls(camera, renderer.domElement);
-controls.movementSpeed=0.5
-controls.lookSpeed= 1.2;
-controls.lookVertical = true;
-controls.activeLook = true;
-
-// swap controls with mine
+const controller = new FlyControls( camera, document );
+controller.movementSpeed=0.3
+controller.autoForward = true;
+controller.dragToLook=true;
+controller.rollSpeed = 0.005
 
 
 // plane
@@ -45,14 +44,9 @@ for (let i = 0; i < geometry.attributes.position.count; i++) {
 }
 geometry.computeVertexNormals(); 
 
-// key strokes
-addEventListener("keydown", logkey);
-function logkey(e) {
-    // if (e.keyCode===87) 
-}
 function animate() {
 	requestAnimationFrame( animate );
-    controls.update(1);
+    controller.update(1);
 	renderer.render( scene, camera );
 }
 animate();
