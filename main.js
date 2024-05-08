@@ -2,6 +2,45 @@ import * as THREE from 'three';
 import { ImprovedNoise } from 'three/addons/math/ImprovedNoise.js';
 import { FlyControls } from 'three/addons/controls/FlyControls.js';
 
+const terrain = {
+    
+    viewAngle : -Math.PI/2,
+    segments : 500,
+    segments : 500,
+    planeWidth : 500,
+    planeLength : 500,
+    geometry : null,
+    material : null,
+    texture : new THREE.TextureLoader().load('assets/TerrainTexture.jpg' ),
+    
+    init: function() {
+        this.texture.wrapS = THREE.RepeatWrapping;
+        this.texture.wrapT = THREE.RepeatWrapping;
+        this.texture.repeat.set(10, 10); 
+        this.geometry = new THREE.PlaneGeometry(this.planeWidth, this.planeLength, this.segments, this.segments);
+        this.material = new THREE.MeshStandardMaterial({ map: this.texture });
+        this.mesh = new THREE.Mesh(this.geometry, this.material);
+        this.mesh.rotation.x = this.viewAngle;
+        
+        return this.mesh;
+    },
+
+    generateTerrain : function() {
+        const perlin = new ImprovedNoise();
+        const height = 50; 
+        const positionAttribute = this.geometry.getAttribute('position');
+        for (let i = 0; i < positionAttribute.count; i++) {
+    
+            let x = i % (this.segments + 1);
+            let y = Math.floor(i / (this.segments + 1));
+
+            let noise = perlin.noise(x / 30, y / 30, 0); 
+            positionAttribute.setZ(i, noise * height);
+        }
+        this.geometry.computeVertexNormals(); 
+    }
+
+}
 
 // scene
 const scene = new THREE.Scene();
@@ -22,48 +61,22 @@ controller.rollSpeed = 0.008
 // lighting
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
 scene.add(ambientLight);
-// scene.background =  new THREE.Color("rgb(135, 206, 235)");
-scene.background = new THREE.TextureLoader().load('assets/sky.jpg' ); 
 const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
 directionalLight.position.set(50, 100, 50);
 scene.add(directionalLight);
 
+// terrain
+const terrainMesh = terrain.init();
+scene.add(terrainMesh);
+terrain.generateTerrain();
 
-// load texture
-const terrainTexture = new THREE.TextureLoader().load('assets/TerrainTexture.jpg' ); 
-terrainTexture.wrapS = THREE.RepeatWrapping;
-terrainTexture.wrapT = THREE.RepeatWrapping;
-terrainTexture.repeat.set(10, 10); 
+// // skybox //
+// const boxGeometry = new THREE.PlaneGeometry( planeWidth, planeLength, segments, segments);
 
+// const boxMaterial = new THREE.MeshStandardMaterial({
+//     map: terrainTexture,
+// });
 
-// plane
-const viewAngle = -Math.PI/2;
-const segments = 500;
-const planeWidth = 500;
-const planeLength = 500;
-const geometry = new THREE.PlaneGeometry( planeWidth, planeLength, segments, segments);
-
-const material = new THREE.MeshStandardMaterial({
-    map: terrainTexture,
-});
-
-const plane = new THREE.Mesh( geometry, material );
-plane.rotation.x = viewAngle;
-scene.add( plane );
-
-// perlin
-const perlin = new ImprovedNoise();
-const height = 50; 
-const positionAttribute = geometry.getAttribute('position');
-for (let i = 0; i < positionAttribute.count; i++) {
-    
-    let x = i % (segments + 1);
-    let y = Math.floor(i / (segments + 1));
-
-    let noise = perlin.noise(x / 30, y / 30, 0); 
-    positionAttribute.setZ(i, noise * height);
-}
-geometry.computeVertexNormals(); 
 
 function animate() {
 
