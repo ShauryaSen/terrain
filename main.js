@@ -16,9 +16,7 @@ camera.position.set(cameraPos.x, cameraPos.y, 0);
 const controller = new FlyControls( camera, document );
 controller.movementSpeed=0.3
 controller.autoForward = true;
-controller.dragToLook=true;
-controller.rollSpeed = 0.005
-
+controller.rollSpeed = 0.008
 
 // plane
 const viewAngle = -Math.PI/2;
@@ -34,13 +32,14 @@ scene.add( plane );
 // perlin
 const perlin = new ImprovedNoise();
 const height = 50; 
-for (let i = 0; i < geometry.attributes.position.count; i++) {
+const positionAttribute = geometry.getAttribute('position');
+for (let i = 0; i < positionAttribute.count; i++) {
     
     let x = i % (segments + 1);
     let y = Math.floor(i / (segments + 1));
 
     let noise = perlin.noise(x / 30, y / 30, 0); 
-    geometry.attributes.position.setZ(i, noise * height);
+    positionAttribute.setZ(i, noise * height);
 }
 geometry.computeVertexNormals(); 
 
