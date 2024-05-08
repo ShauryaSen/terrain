@@ -11,7 +11,7 @@ const terrain = {
     planeLength : 500,
     geometry : null,
     material : null,
-    texture : new THREE.TextureLoader().load('assets/TerrainTexture.jpg' ),
+    texture : new THREE.TextureLoader().load('textures/TerrainTexture.jpg' ),
     
     init: function() {
         this.texture.wrapS = THREE.RepeatWrapping;
@@ -70,16 +70,19 @@ const terrainMesh = terrain.init();
 scene.add(terrainMesh);
 terrain.generateTerrain();
 
-// // skybox //
-// const boxGeometry = new THREE.PlaneGeometry( planeWidth, planeLength, segments, segments);
+// skybox
+const loader = new THREE.CubeTextureLoader();
+loader.setPath('textures/skybox/');
 
-// const boxMaterial = new THREE.MeshStandardMaterial({
-//     map: terrainTexture,
-// });
+const skyboxTexture = loader.load([
+    'right.bmp', 'left.bmp',
+    'top.bmp', 'bottom.bmp',
+    'front.bmp', 'back.bmp'
+]);
 
+scene.background = skyboxTexture;
 
 function animate() {
-
 	requestAnimationFrame( animate );
     controller.update(1);
 	renderer.render( scene, camera );
