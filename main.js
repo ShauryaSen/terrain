@@ -9,6 +9,7 @@ const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.inner
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
+
 let cameraPos = {x: 0, y: 15}
 camera.position.set(cameraPos.x, cameraPos.y, 0);
 
@@ -19,10 +20,11 @@ controller.autoForward = true;
 controller.rollSpeed = 0.008
 
 // lighting
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // soft white light
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
 scene.add(ambientLight);
-
-const directionalLight = new THREE.DirectionalLight(0xffffff, 1); // sunlight
+// scene.background =  new THREE.Color("rgb(135, 206, 235)");
+scene.background = new THREE.TextureLoader().load('assets/sky.jpg' ); 
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
 directionalLight.position.set(50, 100, 50);
 scene.add(directionalLight);
 
@@ -64,6 +66,7 @@ for (let i = 0; i < positionAttribute.count; i++) {
 geometry.computeVertexNormals(); 
 
 function animate() {
+
 	requestAnimationFrame( animate );
     controller.update(1);
 	renderer.render( scene, camera );
