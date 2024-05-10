@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import { ImprovedNoise } from 'three/addons/math/ImprovedNoise.js';
 import { FlyControls } from 'three/addons/controls/FlyControls.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
 
 const terrain = {
     
@@ -11,7 +13,7 @@ const terrain = {
     planeLength : 500,
     geometry : null,
     material : null,
-    texture : new THREE.TextureLoader().load('textures/TerrainTexture.jpg' ),
+    texture : new THREE.TextureLoader().load('assets/textures/TerrainTexture.jpg' ),
     
     init: function() {
         this.texture.wrapS = THREE.RepeatWrapping;
@@ -39,16 +41,15 @@ const terrain = {
         }
         this.geometry.computeVertexNormals(); 
     }
-
 }
 
 // scene
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
 
+const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 let cameraPos = {x: 0, y: 15}
 camera.position.set(cameraPos.x, cameraPos.y, 0);
 
@@ -72,7 +73,7 @@ terrain.generateTerrain();
 
 // skybox
 const loader = new THREE.CubeTextureLoader();
-loader.setPath('textures/skybox/');
+loader.setPath('assets/textures/skybox/');
 
 const skyboxTexture = loader.load([
     'right.bmp', 'left.bmp',
@@ -82,8 +83,29 @@ const skyboxTexture = loader.load([
 
 scene.background = skyboxTexture;
 
+// eagle 
+const eagleLoader = new GLTFLoader();
+let mixer;
+eagleLoader.load('assets/eagle/scene.gltf', function(gltf) {
+    const eagle = gltf.scene;
+    eagle.position.set(10, 15, 0);
+    eagle.scale.set(0.3, 0.3, 0.3);
+    scene.add(eagle);
+
+    mixer = new THREE.AnimationMixer(eagle);
+    gltf.animations.forEach((clip) => {
+        mixer.clipAction(clip).play();
+    });
+
+    mixer.timeScale = 0.02;
+}, undefined, function(error) {
+    console.error('An error occurred while loading the eagle model:', error);
+});
+
+
 function animate() {
 	requestAnimationFrame( animate );
+    if (mixer) mixer.update(1);
     controller.update(1);
 	renderer.render( scene, camera );
 }
