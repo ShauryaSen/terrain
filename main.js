@@ -49,15 +49,16 @@ const Eagle = {
 
     init : function() {
         const eagleLoader = new GLTFLoader();
-        eagleLoader.load('assets/eagle/scene.gltf', function(gltf) {
+        eagleLoader.load('assets/eagle/scene.glb', function(gltf) {
             Eagle.loadModel(gltf);
         });
     },
 
     loadModel : function (gltf) {
         this.object = gltf.scene;
-        this.object.position.set(10, 15, 0);
-        this.object.scale.set(0.3, 0.3, 0.3);
+        this.object.position.set(0, 0, 0);
+        this.object.scale.set(0.2, 0.2, 0.2);
+
         scene.add(this.object);
     
         this.mixer = new THREE.AnimationMixer(this.object);
@@ -66,6 +67,10 @@ const Eagle = {
         });
     
         this.mixer.timeScale = 0.02;
+
+        const axesHelper = new THREE.AxesHelper(5);
+        this.object.add(axesHelper);
+
     
         // fly controller
         this.controller = new FlyControls(this.object, renderer.domElement);
@@ -87,7 +92,7 @@ renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
 
 const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
-let cameraPos = {x: 10, y: 15}
+let cameraPos = {x: 0, y: 0}
 camera.position.set(cameraPos.x, cameraPos.y, 0);
 
 // lighting //
@@ -117,13 +122,26 @@ Eagle.init();
 
 function animate() {
 	requestAnimationFrame( animate );
-
+    
     Eagle.update(1);
     const eagle = Eagle.object;
+    // if (eagle) {
+        //     camera.position.copy(eagle.position).add(new THREE.Vector3(0, 0, 20).applyQuaternion(eagle.quaternion));
+        
+        //     camera.lookAt(eagle.position);
+        // }
     if (eagle) {
-        camera.position.copy(eagle.position).add(new THREE.Vector3(0, 10, 20).applyQuaternion(eagle.quaternion));
-        camera.lookAt(eagle.position);
+        // Position the camera higher relative to the eagle
+        camera.position.copy(eagle.position).add(new THREE.Vector3(0, 5, 10).applyQuaternion(eagle.quaternion));
+
+        // to keep camera parallel to eagle
+        let forwardVector = new THREE.Vector3(0, 0, -1);
+        forwardVector.applyQuaternion(eagle.quaternion).multiplyScalar(100);
+        forwardVector.add(eagle.position);
+
+        camera.lookAt(forwardVector);
     }
+
 
 	renderer.render( scene, camera );
 }
